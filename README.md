@@ -13,8 +13,10 @@ A Tampermonkey userscript that puts a `···` menu on [jpdb.io](https://jpdb.io
 and accept the install prompt.
 
 **iPhone / iPad** — the free [Userscripts](https://apps.apple.com/app/userscripts/id1463298887)
-app (iOS 15.1+) runs these in Safari. Install it, open the same `.user.js` link in Safari, then
-install from the extension's menu. See [below](#on-iphone-and-ipad) for what Safari changes.
+app (iOS 15.1+) or [wBlock](https://github.com/0xCUB3/wBlock) (free, iOS 15.4+) runs these in
+Safari. In wBlock: Settings → Userscripts → add this file by URL, then turn userscripts **on for
+jpdb.io** in the toolbar popup — they are per-site. See [below](#on-iphone-and-ipad) for what
+Safari changes.
 
 ## The menu
 
@@ -51,12 +53,21 @@ favourites first, then community stories with author, date and star count, starr
 leaving the page. Cached per kanji for a week; `refresh` refetches. The `−` / `+` row sets how
 many community stories to show.
 
-**This one needs a Koohii login, which is why there is no screenshot of it here.** Kanji Koohii
+**It needs a Koohii login, which is why there is no screenshot of it here.** Kanji Koohii
 answers a logged-out request with a sign-in page and zero stories — the whole page, not just the
 favourites — and jpdb+ reads that page through your browser's own cookies. So there is nothing to
-configure and no token to paste, but with no Koohii session you get an empty list and only the
-section header and `refresh` link. Log in once at kanji.koohii.com in the same browser and the
-stories appear.
+configure and no token to paste, but with no Koohii session you get an empty list and only a line
+of text saying so. Log in once at kanji.koohii.com in the same browser and the stories appear.
+
+The block tells you which failure you got, because every one of them used to be silent:
+
+- **"returned its sign-in page"** — the request carried no Koohii session. On iPhone this is
+  usually Safari blocking cross-site cookies: a request from jpdb.io to kanji.koohii.com is
+  third-party, and "Prevent Cross-Site Tracking" is on by default. Signing in again will not fix
+  it; turning that setting off will, at the cost of the tracking protection everywhere else.
+- **"Could not reach kanji.koohii.com"** — the request never left. Check that the userscript
+  manager allows the host the script declares with `@connect`.
+- **"No stories came back for this kanji"** — the fetch worked and that kanji genuinely has none.
 
 ## Limits
 
@@ -67,9 +78,10 @@ stories appear.
 
 ## On iPhone and iPad
 
-The script runs unchanged in Safari through the Userscripts app. The `···` menu opens on tap and
-closes when you tap elsewhere. A native Safari Web Extension with a toolbar popup would be a
-better home for the settings; it is not built yet.
+The script runs unchanged in Safari through the Userscripts or wBlock app. The `···` opens on
+tap and closes when you tap elsewhere; `hover` still does nothing, since there is no pointer to
+hover with. A native Safari Web Extension with a toolbar popup would be a better home for the
+settings; it is not built yet.
 
 ## Notes
 

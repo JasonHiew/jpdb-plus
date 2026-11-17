@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         jpdb+
 // @namespace    https://github.com/JasonHiew/jpdb-plus
-// @version      1.14.0
+// @version      1.15.0
 // @description  Adds a ··· menu to jpdb.io with show/hide/hover toggles for meanings, furigana and Koohii mnemonics.
 // @author       Jason Hiew
 // @homepageURL  https://github.com/JasonHiew/jpdb-plus
@@ -75,7 +75,7 @@
     var trigger = document.createElement('a');
     trigger.textContent = '···';
     trigger.className = 'nav-item';
-    trigger.style.cssText = 'cursor:default;user-select:none;letter-spacing:3px;';
+    trigger.style.cssText = 'cursor:pointer;user-select:none;letter-spacing:3px;';
     wrapper.appendChild(trigger);
 
     var panel = document.createElement('div');
@@ -89,13 +89,25 @@
 
     // Delay hide so the cursor can move from trigger into the panel without it closing
     var _leaveTimer = null;
-    wrapper.addEventListener('mouseenter', function () {
-      clearTimeout(_leaveTimer);
-      panel.style.display = 'flex';
-    });
+    function openPanel() { clearTimeout(_leaveTimer); panel.style.display = 'flex'; }
+    function closePanel() { clearTimeout(_leaveTimer); panel.style.display = 'none'; }
+
+    wrapper.addEventListener('mouseenter', openPanel);
     wrapper.addEventListener('mouseleave', function () {
-      _leaveTimer = setTimeout(function () { panel.style.display = 'none'; }, 120);
+      _leaveTimer = setTimeout(closePanel, 120);
     });
+
+    // Touchscreens have no hover, and a bare <a> without href never gets a synthesised
+    // mouseenter from a tap, so the trigger needs its own click handler and taps elsewhere
+    // need to close the panel.
+    trigger.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (panel.style.display === 'flex') closePanel(); else openPanel();
+    });
+    document.addEventListener('click', function (e) {
+      if (!wrapper.contains(e.target)) closePanel();
+    }, true);
 
     function makeToggleBtn(label, getIdx, setIdx, key) {
       var btn = document.createElement('button');
@@ -274,6 +286,26 @@
   var koohiiContainer = null;
   var fetchSeq = 0;
 
+  // A silent empty result is indistinguishable from a bug, so every failure gets a line of
+  // text saying which failure it was.
+  function koohiiNotice(text, withSignIn) {
+    if (koohiiContainer) koohiiContainer.remove();
+    var box = document.createElement('div');
+    box.style.cssText = 'margin-top:0.35rem;font-size:0.78em;line-height:1.45;opacity:0.55;';
+    box.textContent = text;
+    if (withSignIn !== false) {
+      var a = document.createElement('a');
+      a.href = 'https://kanji.koohii.com/login';
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = ' Sign in';
+      a.style.cssText = 'color:inherit;text-decoration:underline;';
+      box.appendChild(a);
+    }
+    mnParent.appendChild(box);
+    koohiiContainer = box;
+  }
+
   function injectStories(data) {
     var favs   = data.favs   || [];
     var shared = data.shared || [];
@@ -320,7 +352,10 @@
     koohiiContainer.appendChild(divider);
     mnParent.appendChild(koohiiContainer);
 
-    if (!favs.length && !shared.length) return;
+    if (!favs.length && !shared.length) {
+      koohiiNotice('No stories came back for this kanji.');
+      return;
+    }
 
     if (favs.length) {
       koohiiContainer.appendChild(makeSubDivider('Your favourites'));
@@ -419,10 +454,23 @@
         koohiiContainer = null;
         var doc = new DOMParser().parseFromString(resp.responseText, 'text/html');
         var data = parseKoohiiPage(doc);
+        if (!data.favs.length && !data.shared.length) {
+          // Do not cache this: a week of "no stories" outlives the reason it happened.
+          var signedOut = /sign in/i.test(doc.title || '');
+          koohiiNotice(signedOut
+            ? 'Kanji Koohii returned its sign-in page, so this request had no Koohii session. Safari blocks cross-site cookies by default, which does this even when you are logged in.'
+            : 'No stories came back for this kanji.');
+          return;
+        }
         localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: data }));
         injectStories(data);
       },
-      onerror: function () { if (seq === fetchSeq) { placeholder.remove(); koohiiContainer = null; } }
+      onerror: function () {
+        if (seq !== fetchSeq) return;
+        placeholder.remove();
+        koohiiContainer = null;
+        koohiiNotice('Could not reach kanji.koohii.com. If you are on iPhone, the extension may not be allowed to contact that host.', false);
+      }
     });
   }
 
