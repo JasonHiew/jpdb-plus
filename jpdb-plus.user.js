@@ -6,8 +6,8 @@
 // @author       Jason Hiew
 // @homepageURL  https://github.com/JasonHiew/jpdb-plus
 // @supportURL   https://github.com/JasonHiew/jpdb-plus/issues
-// @downloadURL  https://raw.githubusercontent.com/JasonHiew/jpdb-plus/main/jpdb+.user.js
-// @updateURL    https://raw.githubusercontent.com/JasonHiew/jpdb-plus/main/jpdb+.user.js
+// @downloadURL  https://raw.githubusercontent.com/JasonHiew/jpdb-plus/main/jpdb-plus.user.js
+// @updateURL    https://raw.githubusercontent.com/JasonHiew/jpdb-plus/main/jpdb-plus.user.js
 // @match        https://jpdb.io/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=jpdb.io
 // @grant        GM_xmlhttpRequest

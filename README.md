@@ -9,7 +9,7 @@ A Tampermonkey userscript that puts a `···` menu on [jpdb.io](https://jpdb.io
 
 **Desktop** — with [Tampermonkey](https://www.tampermonkey.net/) or
 [Violentmonkey](https://violentmonkey.github.io/) installed, open
-[`jpdb+.user.js`](https://raw.githubusercontent.com/JasonHiew/jpdb-plus/main/jpdb%2B.user.js) and
+[`jpdb-plus.user.js`](https://raw.githubusercontent.com/JasonHiew/jpdb-plus/main/jpdb-plus.user.js) and
 accept the install prompt.
 
 **iPhone / iPad** — the free [Userscripts](https://apps.apple.com/app/userscripts/id1463298887)
