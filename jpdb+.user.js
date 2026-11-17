@@ -1,14 +1,19 @@
 // ==UserScript==
 // @name         jpdb+
-// @namespace    http://tampermonkey.net/
-// @version      1.13
-// @description  Adds a ··· menu to the jpdb.io navbar with toggles for meanings, furigana, and koohii mnemonics.
-// @author       You
+// @namespace    https://github.com/JasonHiew/jpdb-plus
+// @version      1.14.0
+// @description  Adds a ··· menu to jpdb.io with show/hide/hover toggles for meanings, furigana and Koohii mnemonics.
+// @author       Jason Hiew
+// @homepageURL  https://github.com/JasonHiew/jpdb-plus
+// @supportURL   https://github.com/JasonHiew/jpdb-plus/issues
+// @downloadURL  https://raw.githubusercontent.com/JasonHiew/jpdb-plus/main/jpdb+.user.js
+// @updateURL    https://raw.githubusercontent.com/JasonHiew/jpdb-plus/main/jpdb+.user.js
 // @match        https://jpdb.io/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=jpdb.io
 // @grant        GM_xmlhttpRequest
 // @connect      kanji.koohii.com
 // @run-at       document-end
+// @license      MIT
 // ==/UserScript==
 
 (function () {
@@ -387,7 +392,6 @@
       else if (between(container, sharedTitle, sharedEnd)) shared.push(story);
     });
 
-    console.log('[koohii] favs:', favs.length, '| shared:', shared.length);
     return { favs: favs, shared: shared.slice(0, koohiiCount) };
   }
 
